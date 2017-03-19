@@ -81,6 +81,52 @@ module.exports = {
     return output || aceStraight;
   },
 
+  checkDuplicates: (hand) => {
+    // in sorted format [2, 3, 4, 5, 6]
+    // checks duplicates and returns rank
+    let duplicates = {};
+    hand.forEach(item => {
+      if (duplicates.hasOwnProperty(item)) {
+        duplicates[item] += 1;
+      } else {
+        duplicates[item] = 1
+      }
+    })
+    let fourOfAKind = false;
+    let threeOfAkind = false;
+    let pairs = 0;
+    for (card in duplicates) {
+      switch (duplicates[card]) {
+        case 2:
+          pairs += 1;
+          break;
+        case 3:
+          threeOfAkind = true;
+          break;
+        case 4:
+          fourOfAKind = true;
+          break;
+      }
+    }
+    let outputRank = 10;
+    if (pairs === 1) {
+      outputRank = 9;
+    }
+    if (pairs === 2) {
+      outputRank = 8;
+    }
+    if (threeOfAkind) {
+      outputRank = 7;
+    }
+    if (threeOfAkind && pairs) {
+      outputRank = 4;
+    }
+    if (fourOfAKind) {
+      outputRank = 3;
+    }
+    return outputRank;
+  },
+
   sortLowToHigh: (hand) => {
     // hand in format [ '10D', '11D', '12D', '13D', '14D' ] -> [ '10', '11', '12', '13', '14' ]
     let handValues = hand.map(item => {
@@ -98,21 +144,26 @@ module.exports = {
     let convertedHand = module.exports.convertValue(hand); // returns in format [ '10D', '11D', '12D', '13D', '14D' ]
     let sortedHand = module.exports.sortLowToHigh(convertedHand); // returns in format[ '10', '11', '12', '13', '14' ]
 
+    rank = module.exports.checkDuplicates(sortedHand);
     let flush = false;
     let straight = false;
     if (module.exports.isStraight(sortedHand)) {
       straight = true;
-      rank = 6
+      if (rank > 6) {
+        rank = 6;
+      }
     }
     if (module.exports.isFlush(hand)) {
       flush = true;
-      rank = 5
+      if (rank > 5) {
+        rank = 5;
+      }
     }
     if (flush && straight) {
       // use a regex here
       // if (convertedHand includes 10 and 14) it must be a royal flush
       if (sortedHand[0].match('10') && sortedHand[4].match('14')) {
-        rank = 1
+        rank = 1;
       } else {
         rank = 2;
       }
@@ -125,7 +176,17 @@ module.exports = {
   compareHands: (hand1, hand2) => {
     let handType1 = checkHandType(hand1)
     let handType2 = checkHandType(hand2)
+    if (handType1 === handType2) {
+      // handle tie
+    }
+    if (handType1 < handType2) {
+      console.log('hand1, wins!');
+      return 'Winner: hand1'
+    }  else {
+      console.log('hand2, wins!')
+      return 'Winner: hand2'
+    }
   }
 }
-// let test = module.exports.checkHandRank(['JD', '10D', 'QD', 'KD', 'AD']);
-// console.log(test);
+let test = module.exports.checkHandRank(['JD', 'JD', 'JD', 'KS', 'AD']);
+console.log(test);

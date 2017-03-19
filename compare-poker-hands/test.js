@@ -50,17 +50,27 @@ describe('cardFunctions', function() {
     it('should return a rank of 2 if it is a straight flush', function () {
       cardFunctions.checkHandRank(['2D', '3D', '6D', '5D', '4D']).should.be.eql(2);
     })
-    it('should return a rank of 3 if it is a 4 of a kind');
-    it('should return a rank of 4 if it is a full house');
+    it('should return a rank of 3 if it is a 4 of a kind', function () {
+      cardFunctions.checkHandRank(['JD', 'JD', 'JD', 'JS', 'AD']).should.be.eql(3);
+    });
+    it('should return a rank of 4 if it is a full house', function () {
+      cardFunctions.checkHandRank(['JD', 'JD', 'JD', 'QS', 'QD']).should.be.eql(4);
+    });
     it('should return a rank of 5 if it is a regular flush', function () {
       cardFunctions.checkHandRank(['AC', '2C', '5C', '6C', '10C']).should.be.eql(5);
     })
     it('should return a rank of 6 if it is a straight', function () {
       cardFunctions.checkHandRank(['9D', '10D', 'JD', 'QD', 'KS'])
     });
-    it('should return a rank of 7 if it is a three of a kind');
-    it('should return a rank of 8 if it is a two pair');
-    it('should return a rank of 9 if it is a pair');
+    it('should return a rank of 7 if it is a three of a kind', function () {
+      cardFunctions.checkHandRank(['JD', 'JD', 'JD', 'KS', 'AD']).should.be.eql(7);
+    });
+    it('should return a rank of 8 if it is a two pair', function () {
+      cardFunctions.checkHandRank(['JD', 'JD', 'QD', 'QS', 'AD']).should.be.eql(8);
+    });
+    it('should return a rank of 9 if it is a pair', function () {
+      cardFunctions.checkHandRank(['JD', 'JD', 'QD', 'KS', 'AD']).should.be.eql(9);
+    });
     it('should return a rank of 10 if it a high card', function () {
       cardFunctions.checkHandRank(['AC', '3D', '5S', '8C', '10H']).should.be.eql(10);
     });

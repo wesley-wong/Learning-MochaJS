@@ -81,9 +81,7 @@ module.exports = {
     return output || aceStraight;
   },
 
-  checkDuplicates: (hand) => {
-    // in sorted format [2, 3, 4, 5, 6]
-    // checks duplicates and returns rank
+  createDuplicateObject: (hand) => {
     let duplicates = {};
     hand.forEach(item => {
       if (duplicates.hasOwnProperty(item)) {
@@ -92,6 +90,13 @@ module.exports = {
         duplicates[item] = 1
       }
     })
+    return duplicates;
+  },
+
+  checkDuplicates: (hand) => {
+    // in sorted format [2, 3, 4, 5, 6]
+    // checks duplicates and returns rank
+    let duplicates = module.exports.createDuplicateObject(hand);
     let fourOfAKind = false;
     let threeOfAkind = false;
     let pairs = 0;
@@ -173,20 +178,82 @@ module.exports = {
     return rank;
   },
 
-  compareHands: (hand1, hand2) => {
-    let handType1 = checkHandType(hand1)
-    let handType2 = checkHandType(hand2)
-    if (handType1 === handType2) {
-      // handle tie
+  convertSuit: (suit) => {
+    // Spade = 1, Heart = 2, Club = 3, Diamond = 4
+    let output = 0;
+    switch (suit) {
+      case 'S':
+        output = 1;
+        break;
+      case 'H':
+        output = 2;
+        break;
+      case 'C':
+        output = 3;
+        break;
+      case 'D':
+        output = 4;
+        break;
     }
-    if (handType1 < handType2) {
-      console.log('hand1, wins!');
+    return output;
+  },
+
+  returnSuit: (hand, cardValue) => {
+    // hand in format [ '10D', '11D', '12D', '13D', '14D' ]
+    let outputSuit = '';
+    let regex = new RegExp(cardValue,"g");
+    hand.find(card => {
+      if (card.match(regex)) {
+        outputSuit = card.slice(-1);
+      }
+    })
+    return outputSuit;
+  },
+
+  handleTie: (hand1, hand2, handRank) => {
+    // for high card and straights, just get highest number
+    let convertedHand1 = module.exports.convertValue(hand1); // returns in format [ '10D', '11D', '12D', '13D', '14D' ]
+    let sortedHand1 = module.exports.sortLowToHigh(convertedHand1); // returns in format[ '10', '11', '12', '13', '14' ]
+    let convertedHand2 = module.exports.convertValue(hand2); // returns in format [ '10D', '11D', '12D', '13D', '14D' ]
+    let sortedHand2 = module.exports.sortLowToHigh(convertedHand2); // returns in format[ '10', '11', '12', '13', '14' ]
+
+    let winner;
+    switch (handRank) {
+      case 10:
+        let highcard1= Math.max.apply(null, sortedHand1);
+        let highcard2 = Math.max.apply(null, sortedHand2);
+        if (highcard1 > highcard2) { winner = 1};
+        if (highcard1 < highcard2) {winner = 2};
+        if (highcard1 === highcard2) {
+          let suit1 = module.exports.returnSuit(convertedHand1, highcard1);
+          let suit2 = module.exports.returnSuit(convertedHand2, highcard1);
+          let suit1Rank = module.exports.convertSuit(suit1);
+          let suit2Rank = module.exports.convertSuit(suit2);
+          if (suit1Rank < suit2Rank) {winner = 1};
+          if (suit1Rank > suit2Rank) {winner = 2};
+        }
+      // case 9:
+    }
+
+    // for pairs, check high
+    let duplicates1 = module.exports.createDuplicateObject(hand1);
+    let duplicates2 = module.exports.createDuplicateObject(hand2);
+    return `Winner: hand${winner}`;
+  },
+
+  compareHands: (hand1, hand2) => {
+    let handRank1 = module.exports.checkHandRank(hand1);
+    let handRank2 = module.exports.checkHandRank(hand2);
+    if (handRank1 === handRank2) {
+      return module.exports.handleTie(hand1, hand2, handRank1);
+    }
+    if (handRank1 < handRank2) {
       return 'Winner: hand1'
-    }  else {
-      console.log('hand2, wins!')
+    }
+    if (handRank1 > handRank2) {
       return 'Winner: hand2'
     }
   }
 }
-let test = module.exports.checkHandRank(['JD', 'JD', 'JD', 'KS', 'AD']);
+let test = module.exports.compareHands(['JD', '8D', '2D', '3S', 'KS'],['10D', 'JD', 'QD', '2S', 'KD']);
 console.log(test);

@@ -252,6 +252,23 @@ module.exports = {
     return winner;
   },
 
+  returnWinnerOfHighcard: (sortedHand1, sortedHand2, convertedHand1, convertedHand2) => {
+    let winner;
+    let highcard1= Math.max.apply(null, sortedHand1);
+    let highcard2 = Math.max.apply(null, sortedHand2);
+    if (highcard1 > highcard2) { winner = 1};
+    if (highcard1 < highcard2) {winner = 2};
+    if (highcard1 === highcard2) {
+      let suit1 = module.exports.returnSuit(convertedHand1, highcard1);
+      let suit2 = module.exports.returnSuit(convertedHand2, highcard1);
+      let suit1Rank = module.exports.convertSuit(suit1);
+      let suit2Rank = module.exports.convertSuit(suit2);
+      if (suit1Rank < suit2Rank) {winner = 1};
+      if (suit1Rank > suit2Rank) {winner = 2};
+    }
+    return winner;
+  },
+
   handleTie: (hand1, hand2, handRank) => {
     // for high card and straights, just get highest number
     let convertedHand1 = module.exports.convertValue(hand1); // returns in format [ '10D', '11D', '12D', '13D', '14D' ]
@@ -262,21 +279,11 @@ module.exports = {
     let duplicates2 = module.exports.createDuplicateObject(sortedHand2);
 
     let winner;
+    console.log(handRank);
     switch (handRank) {
       case 10:
       // highcard
-        let highcard1= Math.max.apply(null, sortedHand1);
-        let highcard2 = Math.max.apply(null, sortedHand2);
-        if (highcard1 > highcard2) { winner = 1};
-        if (highcard1 < highcard2) {winner = 2};
-        if (highcard1 === highcard2) {
-          let suit1 = module.exports.returnSuit(convertedHand1, highcard1);
-          let suit2 = module.exports.returnSuit(convertedHand2, highcard1);
-          let suit1Rank = module.exports.convertSuit(suit1);
-          let suit2Rank = module.exports.convertSuit(suit2);
-          if (suit1Rank < suit2Rank) {winner = 1};
-          if (suit1Rank > suit2Rank) {winner = 2};
-        }
+        winner = module.exports.returnWinnerOfHighcard(sortedHand1, sortedHand2, convertedHand1, convertedHand2);
         break;
       case 9:
       // pair
@@ -296,9 +303,20 @@ module.exports = {
         break;
       case 6:
       // straight
+        winner = module.exports.returnWinnerOfHighcard(sortedHand1, sortedHand2, convertedHand1, convertedHand2);
         break;
       case 5:
       // flush
+      // suits are all the same, get the suit of the first item
+        let suit1 = convertedHand1[0].slice(-1);
+        let suit2 = convertedHand2[0].slice(-1);
+        let suit1Rank = module.exports.convertSuit(suit1);
+        let suit2Rank = module.exports.convertSuit(suit2);
+        if (suit1Rank < suit2Rank) {winner = 1};
+        if (suit1Rank > suit2Rank) {winner = 2};
+        if (suit1Rank === suit2Rank) {
+          winner = module.exports.returnWinnerOfHighcard(sortedHand1, sortedHand2, convertedHand1, convertedHand2);
+        }
         break;
       case 4:
       // full house, same logic as triplet
@@ -333,12 +351,12 @@ module.exports = {
       return module.exports.handleTie(hand1, hand2, handRank1);
     }
     if (handRank1 < handRank2) {
-      return 'Winner: hand1'
+      return 'Winner: hand1';
     }
     if (handRank1 > handRank2) {
-      return 'Winner: hand2'
+      return 'Winner: hand2';
     }
   }
 }
-let test = module.exports.compareHands(['JD', '8S', '10D', '10S', '10D'],['10H', '8H', '8C', '8S', '5H']);
+let test = module.exports.compareHands(['8D', '3D', '4D', '5D', '10D'],['3D', '4D', '5D', '6D', '9D']);
 console.log(test);

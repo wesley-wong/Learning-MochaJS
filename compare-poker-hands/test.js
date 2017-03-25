@@ -82,19 +82,35 @@ describe('cardFunctions', function() {
     it('should return "Winner: hand2" if hand2 has a higher rank than hand 1', function () {
       cardFunctions.compareHands(['9D', '9S', 'JD', 'QD', 'KS'],['9D', '9S', 'JD', 'JS', 'KS']).should.be.eql('Winner: hand2')
     })
-    it('should be able to handle two card hands of the same type (both highcard)', function () {
+    it('should be able to handle two card hands of the same type (both highcard && diff number)', function () {
       cardFunctions.compareHands(['JD', '8D', '2D', '3S', '7D'],['10D', 'JD', 'QD', '2S', 'KD']).should.be.eql('Winner: hand2')
     })
     it('should be able to handle two card hands of the same type (both highcard && same number)', function () {
       cardFunctions.compareHands(['JD', '8D', '2D', '3S', 'KD'],['10D', 'JD', 'QD', '2S', 'KS']).should.be.eql('Winner: hand2')
     })
-    it('should be able to handle two card hands of the same type (both pairs)')
-    it('should be able to handle two card hands of the same type (both two pairs)')
-    it('should be able to handle two card hands of the same type (both three of a kind)')
+    it('should be able to handle two card hands of the same type (both pairs && diff number)', function () {
+      cardFunctions.compareHands(['JD', '8D', '10D', '10S', 'KD'],['10D', 'JS', 'QD', '5C', '5H']).should.be.eql('Winner: hand1')
+    })
+    it('should be able to handle two card hands of the same type (both pairs && same number)', function () {
+      cardFunctions.compareHands(['JD', '8D', '2D', '2S', 'KD'],['10D', 'JS', 'QD', '2C', '2H']).should.be.eql('Winner: hand1')
+    })
+    it('should be able to handle two card hands of the same type (both two pairs && diff number)', function () {
+      cardFunctions.compareHands(['JD', '8S', '10D', '10S', '8D'],['10H', 'JH', 'JC', '10C', '5H']).should.be.eql('Winner: hand2')
+    })
+    it('should be able to handle two card hands of the same type (both two pairs && same number)', function () {
+      cardFunctions.compareHands(['JD', '8S', '10D', '10S', '8D'],['10H', '8H', '8C', '10C', '5H']).should.be.eql('Winner: hand1')
+    })
+    it('should be able to handle two card hands of the same type (both three of a kind)', function () {
+      cardFunctions.compareHands(['JD', '8S', '10D', '10S', '10D'],['10H', '8H', '8C', '8S', '5H']).should.be.eql('Winner: hand1')
+    })
     it('should be able to handle two card hands of the same type (both reg straight)')
     it('should be able to handle two card hands of the same type (both reg flush)')
-    it('should be able to handle two card hands of the same type (both reg full house)')
-    it('should be able to handle two card hands of the same type (both 4 of a kind)')
+    it('should be able to handle two card hands of the same type (both reg full house)', function () {
+      cardFunctions.compareHands(['JD', 'JS', '10D', '10S', '10D'],['8S', '8H', '8C', 'JH', 'JC']).should.be.eql('Winner: hand1')
+    })
+    it('should be able to handle two card hands of the same type (both 4 of a kind)', function () {
+      cardFunctions.compareHands(['JD', '10S', '10D', '10H', '10D'],['JH', 'JC', 'JS', 'JD', '5H']).should.be.eql('Winner: hand2')
+    })
     it('should be able to handle two card hands of the same type (both straight flush)')
     it('should be able to handle two card hands of the same type (both royal flush)')
   })

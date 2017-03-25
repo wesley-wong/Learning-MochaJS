@@ -200,6 +200,7 @@ module.exports = {
 
   returnSuit: (hand, cardValue) => {
     // hand in format [ '10D', '11D', '12D', '13D', '14D' ]
+    // I realize now that I don't need to make a regex, I could just use parseInt()
     let outputSuit = '';
     let regex = new RegExp(cardValue,"g");
     hand.find(card => {
@@ -210,16 +211,60 @@ module.exports = {
     return outputSuit;
   },
 
+  findHighestDuplicate: (handObj, num) => {
+    // num === 2 for pairs, 3 for 3 of a kind, 4 for ... yknow
+    let output = 0;
+    for (let card in handObj) {
+      if (handObj[card] === num && card > output) {
+        output = card;
+      }
+    }
+    return output;
+  },
+
+  returnSuitRank: (hand, cardValue) => {
+    // hand in converted format
+    // suit ranks 1 = spade, 4 = diamond, 5 is a placeholder
+    let outputRank = 5;
+    hand.forEach(card => {
+      if (parseInt(card) == cardValue) {
+        let rank = module.exports.convertSuit((card.slice(-1)));
+        if (rank < outputRank) {
+          outputRank = rank;
+        }
+      }
+    })
+    return outputRank;
+  },
+
+  returnWinnerOfPairs: (duplicates1, duplicates2, convertedHand1, convertedHand2) => {
+    let winner;
+    let highPair1 = parseInt(module.exports.findHighestDuplicate(duplicates1, 2));
+    let highPair2 = parseInt(module.exports.findHighestDuplicate(duplicates2, 2));
+    if (highPair1 > highPair2) {winner = 1 };
+    if (highPair1 < highPair2) {winner = 2};
+    if (highPair1 === highPair2) {
+      let suit1Rank = module.exports.returnSuitRank(convertedHand1, highPair1);
+      let suit2Rank = module.exports.returnSuitRank(convertedHand2, highPair2);
+      if (suit1Rank < suit2Rank) {winner = 1};
+      if (suit1Rank > suit2Rank) {winner = 2};
+    }
+    return winner;
+  },
+
   handleTie: (hand1, hand2, handRank) => {
     // for high card and straights, just get highest number
     let convertedHand1 = module.exports.convertValue(hand1); // returns in format [ '10D', '11D', '12D', '13D', '14D' ]
     let sortedHand1 = module.exports.sortLowToHigh(convertedHand1); // returns in format[ '10', '11', '12', '13', '14' ]
     let convertedHand2 = module.exports.convertValue(hand2); // returns in format [ '10D', '11D', '12D', '13D', '14D' ]
     let sortedHand2 = module.exports.sortLowToHigh(convertedHand2); // returns in format[ '10', '11', '12', '13', '14' ]
+    let duplicates1 = module.exports.createDuplicateObject(sortedHand1);
+    let duplicates2 = module.exports.createDuplicateObject(sortedHand2);
 
     let winner;
     switch (handRank) {
       case 10:
+      // highcard
         let highcard1= Math.max.apply(null, sortedHand1);
         let highcard2 = Math.max.apply(null, sortedHand2);
         if (highcard1 > highcard2) { winner = 1};
@@ -232,12 +277,52 @@ module.exports = {
           if (suit1Rank < suit2Rank) {winner = 1};
           if (suit1Rank > suit2Rank) {winner = 2};
         }
-      // case 9:
+        break;
+      case 9:
+      // pair
+        winner = module.exports.returnWinnerOfPairs(duplicates1, duplicates2, convertedHand1, convertedHand2);
+
+        break;
+      case 8:
+      // two pair
+        winner = module.exports.returnWinnerOfPairs(duplicates1, duplicates2, convertedHand1, convertedHand2);
+        break;
+      case 7:
+      // 3 of a kind
+        let triplet1 = parseInt(module.exports.findHighestDuplicate(duplicates1, 3));
+        let triplet2 = parseInt(module.exports.findHighestDuplicate(duplicates2, 3));
+        if (triplet1 > triplet2) {winner = 1};
+        if (triplet1 < triplet2) {winner = 2};
+        break;
+      case 6:
+      // straight
+        break;
+      case 5:
+      // flush
+        break;
+      case 4:
+      // full house, same logic as triplet
+        let fullTriplet1 = parseInt(module.exports.findHighestDuplicate(duplicates1, 3));
+        let fullTriplet2 = parseInt(module.exports.findHighestDuplicate(duplicates2, 3));
+        if (fullTriplet1 > fullTriplet2) {winner = 1};
+        if (fullTriplet1 < fullTriplet2) {winner = 2};
+        break;
+      case 3:
+      // four of a kind
+        let quadruplet1 = parseInt(module.exports.findHighestDuplicate(duplicates1, 4));
+        let quadruplet2 = parseInt(module.exports.findHighestDuplicate(duplicates2, 4));
+        if (quadruplet1 > quadruplet2) {winner = 1};
+        if (quadruplet1 < quadruplet2) {winner = 2};
+        break;
+      case 2:
+      // straight flush
+        break;
+      case 1:
+      // royal flush
+        break;
     }
 
     // for pairs, check high
-    let duplicates1 = module.exports.createDuplicateObject(hand1);
-    let duplicates2 = module.exports.createDuplicateObject(hand2);
     return `Winner: hand${winner}`;
   },
 
@@ -255,5 +340,5 @@ module.exports = {
     }
   }
 }
-let test = module.exports.compareHands(['JD', '8D', '2D', '3S', 'KS'],['10D', 'JD', 'QD', '2S', 'KD']);
+let test = module.exports.compareHands(['JD', '8S', '10D', '10S', '10D'],['10H', '8H', '8C', '8S', '5H']);
 console.log(test);

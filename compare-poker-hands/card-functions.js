@@ -279,7 +279,6 @@ module.exports = {
     let duplicates2 = module.exports.createDuplicateObject(sortedHand2);
 
     let winner;
-    console.log(handRank);
     switch (handRank) {
       case 10:
       // highcard
@@ -334,9 +333,11 @@ module.exports = {
         break;
       case 2:
       // straight flush
+        winner = module.exports.returnWinnerOfHighcard(sortedHand1, sortedHand2, convertedHand1, convertedHand2);
         break;
       case 1:
       // royal flush
+        winner = module.exports.returnWinnerOfHighcard(sortedHand1, sortedHand2, convertedHand1, convertedHand2);
         break;
     }
 
@@ -358,5 +359,3 @@ module.exports = {
     }
   }
 }
-let test = module.exports.compareHands(['8D', '3D', '4D', '5D', '10D'],['3D', '4D', '5D', '6D', '9D']);
-console.log(test);
